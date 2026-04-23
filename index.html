@@ -569,10 +569,10 @@
   <div class="hero-left">
     <p class="hero-eyebrow">AI Director / Physical Therapist / Lacrosse Coach</p>
     <h1 class="hero-name">
-      シュン<em>Syunsuke.</em>
+      <em>Syunsuke Kitamura</em>
     </h1>
     <p class="hero-tagline">
-      問いが、人を動かす。
+      問いが、道筋を照らし、人を動かす。
     </p>
   </div>
   <div class="hero-right">
@@ -742,41 +742,4 @@
   <h2 class="contact-heading reveal">
     一緒に、<em>道筋をつくりませんか。</em>
   </h2>
-  <a href="mailto:hello@example.com" class="btn-primary reveal">
-    <span>Contact Me</span>
-  </a>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <p>© 2026 Syunsuke Kitamura. All rights reserved.</p>
-  <ul class="footer-links">
-    <li><a href="https://note.com/beyond_growth/n/n51428b4eeaae" target="_blank">note</a></li>
-    <li><a href="#" target="_blank">GitHub</a></li>
-    <li><a href="https://www.instagram.com/shun.kitamura.g?igsh=d3poODRkOGJyaWxt" target="_blank">Instagram</a></li>
-  </ul>
-</footer>
-
-<script>
-  // Cursor
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursor-ring');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  function animateCursor() {
-    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
-    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-    requestAnimationFrame(animateCursor);
-  }
-  animateCursor();
-
-  // Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-  }, { threshold: 0.1 });
-  reveals.forEach(el => observer.observe(el));
-</script>
-</body>
-</html>
+  <a href="ma
