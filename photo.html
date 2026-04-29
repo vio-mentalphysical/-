@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo | Syunsuke Kitamura</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #111;
+    --paper: #f8f7f4;
+    --gray-light: #f0ede8;
+    --gray-mid: #e0ddd8;
+    --gray-dark: #888;
+    --line: #ddd;
+    --muted: #aaa;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* CURSOR */
+  * { cursor: none; }
+  #cursor {
+    width: 6px; height: 6px;
+    background: var(--ink);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s ease;
+  }
+  #cursor-ring {
+    width: 28px; height: 28px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    opacity: 0.25;
+  }
+  .album-card:hover ~ #cursor-ring,
+  a:hover ~ #cursor-ring { width: 48px; height: 48px; opacity: 0.15; }
+
+  /* NOISE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    background: rgba(248, 247, 244, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-dark);
+    text-decoration: none;
+    transition: color 0.3s;
+    opacity: 0;
+    animation: fadeIn 0.8s 0.2s forwards;
+  }
+  .nav-back::before { content: '← '; }
+  .nav-back:hover { color: var(--ink); }
+  .nav-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeIn 0.8s 0.4s forwards;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 45vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 9rem 4rem 4rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .hero-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: slideUp 0.9s 0.3s forwards;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(4rem, 9vw, 7rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    opacity: 0;
+    animation: slideUp 0.9s 0.5s forwards;
+  }
+  .hero-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-top: 2rem;
+    opacity: 0;
+    animation: slideUp 0.9s 0.7s forwards;
+  }
+
+  /* ALBUMS */
+  .albums {
+    padding: 5rem 4rem 6rem;
+  }
+  .albums-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .album-card {
+    display: block;
+    text-decoration: none;
+    padding: 3rem;
+    background: var(--gray-light);
+    border: 1px solid var(--gray-mid);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+      box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+      background 0.4s ease;
+  }
+  .album-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* A: 浮き上がり + D: 背景色変化 */
+  .album-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    background: #fff;
+  }
+
+  /* C: タイトルスライド */
+  .album-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem;
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    transform: translateX(0);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .album-card:hover .album-title {
+    transform: translateX(6px);
+  }
+
+  .album-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    display: block;
+  }
+  .album-desc {
+    font-size: 0.82rem;
+    color: var(--gray-dark);
+    line-height: 1.9;
+    margin-bottom: 2.5rem;
+  }
+  .album-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.3rem;
+    transition: gap 0.3s ease, border-color 0.3s;
+  }
+  .album-card:hover .album-arrow {
+    gap: 1rem;
+    border-color: var(--ink);
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    width: calc(100% - 8rem);
+    margin: 0 4rem;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 1.5rem 2rem; }
+    .hero { padding: 7rem 2rem 3rem; }
+    .albums { padding: 3rem 2rem 4rem; }
+    .albums-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .section-divider { width: calc(100% - 4rem); margin: 0 2rem; }
+    footer { padding: 2rem; flex-direction: column; gap: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-back">Portfolio</a>
+  <span class="nav-title">Photo Archive</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-label">Syunsuke Kitamura — Visual Archive</p>
+  <h1 class="hero-title">Photo.</h1>
+  <p class="hero-sub">Select an album to explore</p>
+</div>
+
+<!-- ALBUMS -->
+<div class="albums">
+  <div class="albums-grid">
+    <a href="https://photos.app.goo.gl/JBdkSLmgw7Pq3tNm8" target="_blank" class="album-card">
+      <span class="album-num">001</span>
+      <h2 class="album-title">私の歴史</h2>
+      <p class="album-desc">これまでの歩みを、写真で辿る。</p>
+      <span class="album-arrow">Google Photo →</span>
+    </a>
+    <a href="https://photos.app.goo.gl/XU6pfAq3Mqhaac1VA" target="_blank" class="album-card" style="transition-delay: 0.08s">
+      <span class="album-num">002</span>
+      <h2 class="album-title">マンガの名言集</h2>
+      <p class="album-desc">心に刺さった言葉たちを、一枚一枚に。</p>
+      <span class="album-arrow">Google Photo →</span>
+    </a>
+    <a href="https://photos.app.goo.gl/BtUzR6AUhA9C5bFu7" target="_blank" class="album-card" style="transition-delay: 0.16s">
+      <span class="album-num">003</span>
+      <h2 class="album-title">心が動いた言葉</h2>
+      <p class="album-desc">出会いの中で響いた、忘れたくない言葉。</p>
+      <span class="album-arrow">Google Photo →</span>
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Syunsuke Kitamura</p>
+  <p>Photo Archive</p>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animateCursor() {
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  // Scroll reveal
+  const cards = document.querySelectorAll('.album-card');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  cards.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
