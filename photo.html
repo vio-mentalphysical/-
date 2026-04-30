@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&family=Space+Mono&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
   :root {
     --ink: #111;
     --paper: #f8f7f4;
@@ -17,9 +17,9 @@
     --line: #ddd;
     --muted: #aaa;
   }
-
+ 
   html { scroll-behavior: smooth; }
-
+ 
   body {
     background: var(--paper);
     color: var(--ink);
@@ -28,7 +28,7 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
+ 
   /* CURSOR */
   * { cursor: none; }
   #cursor {
@@ -54,7 +54,7 @@
   }
   .album-card:hover ~ #cursor-ring,
   a:hover ~ #cursor-ring { width: 48px; height: 48px; opacity: 0.15; }
-
+ 
   /* NOISE */
   body::after {
     content: '';
@@ -65,7 +65,7 @@
     z-index: 1000;
     opacity: 0.5;
   }
-
+ 
   /* NAV */
   nav {
     position: fixed;
@@ -101,7 +101,7 @@
     opacity: 0;
     animation: fadeIn 0.8s 0.4s forwards;
   }
-
+ 
   /* HERO */
   .hero {
     min-height: 45vh;
@@ -142,7 +142,7 @@
     opacity: 0;
     animation: slideUp 0.9s 0.7s forwards;
   }
-
+ 
   /* ALBUMS */
   .albums {
     padding: 5rem 4rem 6rem;
@@ -152,7 +152,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
   }
-
+ 
   .album-card {
     display: block;
     text-decoration: none;
@@ -172,14 +172,14 @@
     opacity: 1;
     transform: translateY(0);
   }
-
+ 
   /* A: 浮き上がり + D: 背景色変化 */
   .album-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 16px 40px rgba(0,0,0,0.08);
     background: #fff;
   }
-
+ 
   /* C: タイトルスライド */
   .album-title {
     font-family: 'Cormorant Garamond', serif;
@@ -194,7 +194,7 @@
   .album-card:hover .album-title {
     transform: translateX(6px);
   }
-
+ 
   .album-num {
     font-family: 'Space Mono', monospace;
     font-size: 0.55rem;
@@ -226,7 +226,7 @@
     gap: 1rem;
     border-color: var(--ink);
   }
-
+ 
   /* DIVIDER */
   .section-divider {
     width: calc(100% - 8rem);
@@ -234,7 +234,7 @@
     height: 1px;
     background: var(--line);
   }
-
+ 
   /* FOOTER */
   footer {
     padding: 2rem 4rem;
@@ -249,7 +249,7 @@
     color: var(--muted);
     letter-spacing: 0.1em;
   }
-
+ 
   /* ANIMATIONS */
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -259,7 +259,7 @@
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
+ 
   /* RESPONSIVE */
   @media (max-width: 768px) {
     nav { padding: 1.5rem 2rem; }
@@ -272,23 +272,23 @@
 </style>
 </head>
 <body>
-
+ 
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
-
+ 
 <!-- NAV -->
 <nav>
   <a href="index.html" class="nav-back">Portfolio</a>
   <span class="nav-title">Photo Archive</span>
 </nav>
-
+ 
 <!-- HERO -->
 <div class="hero">
   <p class="hero-label">Syunsuke Kitamura — Visual Archive</p>
   <h1 class="hero-title">Photo.</h1>
   <p class="hero-sub">Select an album to explore</p>
 </div>
-
+ 
 <!-- ALBUMS -->
 <div class="albums">
   <div class="albums-grid">
@@ -312,13 +312,13 @@
     </a>
   </div>
 </div>
-
+ 
 <!-- FOOTER -->
 <footer>
   <p>© 2026 Syunsuke Kitamura</p>
   <p>Photo Archive</p>
 </footer>
-
+ 
 <script>
   // Cursor
   const cursor = document.getElementById('cursor');
@@ -332,7 +332,7 @@
     requestAnimationFrame(animateCursor);
   }
   animateCursor();
-
+ 
   // Scroll reveal
   const cards = document.querySelectorAll('.album-card');
   const observer = new IntersectionObserver(entries => {
