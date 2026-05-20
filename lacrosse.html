@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lacrosse | Syunsuke Kitamura</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #111;
+    --paper: #f8f7f4;
+    --gray-light: #f0ede8;
+    --gray-mid: #e0ddd8;
+    --gray-dark: #888;
+    --line: #ddd;
+    --muted: #aaa;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* CURSOR */
+  * { cursor: none; }
+  #cursor {
+    width: 6px; height: 6px;
+    background: var(--ink);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    width: 28px; height: 28px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    opacity: 0.25;
+  }
+
+  /* NOISE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    background: rgba(248, 247, 244, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-dark);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-back::before { content: '← '; }
+  .nav-back:hover { color: var(--ink); }
+  .nav-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 40vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 9rem 4rem 3rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: slideUp 0.9s 0.3s forwards;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(4rem, 9vw, 7rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    opacity: 0;
+    animation: slideUp 0.9s 0.5s forwards;
+  }
+
+  /* TABS */
+  .tabs-wrap {
+    padding: 4rem 4rem 0;
+  }
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab {
+    padding: 1.2rem 2.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-dark);
+    background: transparent;
+    border: none;
+    cursor: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+  .tab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .tab.active { color: var(--ink); }
+  .tab.active::after { transform: scaleX(1); }
+  .tab:hover { color: var(--ink); }
+
+  /* PANEL */
+  .panels {
+    padding: 4rem 4rem 6rem;
+  }
+  .panel {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+  .panel.active { display: block; }
+
+  /* NOTE PANEL */
+  .note-card {
+    max-width: 600px;
+    padding: 4rem 3rem;
+    background: var(--gray-light);
+    border: 1px solid var(--gray-mid);
+    text-decoration: none;
+    display: block;
+    transition:
+      transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+      box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+      background 0.4s ease;
+  }
+  .note-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    background: #fff;
+  }
+  .note-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+  .note-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .note-card:hover .note-title { transform: translateX(6px); }
+  .note-desc {
+    font-size: 0.85rem;
+    color: var(--gray-dark);
+    line-height: 1.9;
+    margin-bottom: 2rem;
+  }
+  .note-arrow {
+    display: inline-flex;
+    gap: 0.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.3rem;
+    transition: gap 0.3s, border-color 0.3s;
+  }
+  .note-card:hover .note-arrow { gap: 1rem; border-color: var(--ink); }
+
+  /* APPS PANEL */
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .app-card {
+    display: block;
+    text-decoration: none;
+    padding: 3rem 2.5rem;
+    background: var(--gray-light);
+    border: 1px solid var(--gray-mid);
+    transition:
+      transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+      box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+      background 0.4s ease;
+  }
+  .app-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    background: #fff;
+  }
+  .app-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    display: block;
+  }
+  .app-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 0.8rem;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .app-card:hover .app-title { transform: translateX(6px); }
+  .app-desc {
+    font-size: 0.75rem;
+    color: var(--gray-dark);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  .app-arrow {
+    display: inline-flex;
+    gap: 0.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.3rem;
+    transition: gap 0.3s, border-color 0.3s;
+  }
+  .app-card:hover .app-arrow { gap: 1rem; border-color: var(--ink); }
+
+  .empty-state {
+    padding: 4rem 0;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 1.5rem 2rem; }
+    .hero { padding: 7rem 2rem 3rem; }
+    .tabs-wrap { padding: 3rem 2rem 0; }
+    .panels { padding: 3rem 2rem 4rem; }
+    .tab { padding: 1rem 1.5rem; font-size: 0.6rem; }
+    .apps-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    footer { padding: 2rem; flex-direction: column; gap: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-back">Portfolio</a>
+  <span class="nav-title">Lacrosse</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-label">Syunsuke Kitamura — Lacrosse</p>
+  <h1 class="hero-title">Lacrosse.</h1>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" data-target="note">Note</button>
+    <button class="tab" data-target="apps">Apps</button>
+  </div>
+</div>
+
+<!-- PANELS -->
+<div class="panels">
+
+  <!-- NOTE PANEL -->
+  <div class="panel active" id="note">
+    <a href="https://note.com/beyond_growth/m/mb915bb504fe3" target="_blank" class="note-card">
+      <p class="note-label">noteマガジン</p>
+      <h2 class="note-title">Lacrosse Magazine</h2>
+      <p class="note-desc">ラクロスの戦術・コーチング・選手育成について、現場で考えてきたことを記事にまとめています。</p>
+      <span class="note-arrow">Open Note →</span>
+    </a>
+  </div>
+
+  <!-- APPS PANEL -->
+  <div class="panel" id="apps">
+    <div class="apps-grid">
+      <!-- アプリは後から追加します -->
+      <div class="empty-state" style="grid-column: 1 / -1;">Apps coming soon</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Syunsuke Kitamura</p>
+  <p>Lacrosse</p>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animateCursor() {
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  // Tabs
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
